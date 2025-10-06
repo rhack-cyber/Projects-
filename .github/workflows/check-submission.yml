@@ -1,0 +1,17 @@
+name: Check submission files
+
+on: [pull_request]
+
+jobs:
+  check_files:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Check report exists
+      run: |
+        if [ ! -f "docs/report.pdf" ]; then
+          echo "Missing docs/report.pdf. Please add final report to /docs/report.pdf" >&2
+          exit 1
+        fi
