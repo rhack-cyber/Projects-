@@ -1,0 +1,50 @@
+name: Validate Project Submission
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  verify-submission:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout student's PR
+        uses: actions/checkout@v4
+
+      - name: Validate /projects directory exists
+        run: |
+          if [ ! -d "projects" ]; then
+            echo "❌ Missing /projects directory. Please place your files under /projects/<team>-major/."
+            exit 1
+          fi
+          echo "✅ Found /projects directory."
+
+      - name: Check for code folder
+        run: |
+          CODE_DIR=$(find projects -type d -path "*/src" | head -n 1)
+          if [ -z "$CODE_DIR" ]; then
+            echo "❌ Missing /src folder inside your project directory."
+            exit 1
+          fi
+          echo "✅ Found code folder at $CODE_DIR"
+
+      - name: Check for report file
+        run: |
+          REPORT_FILE=$(find projects -type f -name "report.pdf" | head -n 1)
+          if [ -z "$REPORT_FILE" ]; then
+            echo "⚠️ No report.pdf found in /projects/<team>-major/docs/. If report is on Drive, please include link in PR."
+          else
+            echo "✅ Found report: $REPORT_FILE"
+          fi
+
+      - name: Check README presence
+        run: |
+          if [ ! -f "README.md" ]; then
+            echo "❌ Missing README.md file in your submission."
+            exit 1
+          fi
+          echo "✅ README.md exists."
+
+      - name: Final Summary
+        run: echo "✅ Basic structure check complete. Instructor will review details manually."
